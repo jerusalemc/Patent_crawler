@@ -2,9 +2,7 @@
 crawling patents' information from zhiwang
 
 ### Requirements
-> python2.7 
-
-#### Dependencies
+python2.7 is needed
 ```
  pip2 install xlsxwriter 
 ```
