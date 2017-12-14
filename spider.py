@@ -1,7 +1,7 @@
-# -*- coding: cp936 -*-
+# -*- coding: utf-8 -*-
 """
-CNKI×¨ÀûÅÀ³æ
-×¢Òâ£ºCNKIÎªutf-8±àÂë¶ø·Çgbk±àÂë¡£µ«ÊÇ£¬ÎÄµµÖĞµÄÖĞÎÄÄ¬ÈÏÎªgbk±àÂë£¬ËùÒÔÖĞÎÄĞèÒªÏÈgbk½âÂëÔÙ½øĞĞutf-8±àÂë
+CNKIä¸“åˆ©çˆ¬è™«
+æ³¨æ„ï¼šCNKIä¸ºutf-8ç¼–ç è€Œégbkç¼–ç ã€‚ä½†æ˜¯ï¼Œæ–‡æ¡£ä¸­çš„ä¸­æ–‡é»˜è®¤ä¸ºgbkç¼–ç ï¼Œæ‰€ä»¥ä¸­æ–‡éœ€è¦å…ˆgbkè§£ç å†è¿›è¡Œutf-8ç¼–ç 
 """
 
 import cookielib
@@ -9,7 +9,6 @@ import socket
 import time
 import urllib
 import urllib2
-
 import paraset
 
 socket.setdefaulttimeout(20)
@@ -25,24 +24,24 @@ class CnkiSpider:
         self.patent_code = patent_code
         self.start_time = start_time
         self.end_time = end_time
-        # ¹¹½¨Í·½á¹¹£¬Ä£Äâä¯ÀÀÆ÷
+        # æ„å»ºå¤´ç»“æ„ï¼Œæ¨¡æ‹Ÿæµè§ˆå™¨
         self.header = {'Connection': 'Keep-Alive',
                        'Accept': 'text/html,*/*',
                        'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36'}
-        # self.__reconnection()
 
     def __refresh(self):
         self.cookie = {}
         self.opener = None
 
+    # å’ŒçŸ¥ç½‘å»ºç«‹è¿æ¥ï¼Œå¤±è´¥æ—¶å°è¯•é‡æ–°è¿æ¥
     def __reconnection(self):
         self.cookie = cookielib.CookieJar()
         self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie), urllib2.HTTPHandler)
         url = 'http://kns.cnki.net/KNS/request/SearchHandler.ashx?'
         postdata = urllib.urlencode(
-            paraset.make_parameters(self.patent_code, self.start_time, self.end_time))  # ½«²ÎÊıurl±àÂë
+            paraset.make_parameters(self.patent_code, self.start_time, self.end_time))  # å°†å‚æ•°urlç¼–ç 
         try:
-            req = urllib2.Request(url + postdata, headers=self.header)  # Ìá½»ÉêÇë
+            req = urllib2.Request(url + postdata, headers=self.header)  # æäº¤ç”³è¯·
             self.opener.open(req).read()
         except:
             print '... query submission error! wait ' + str(CnkiSpider.__WAIT_TIME) + ' seconds ...'
@@ -50,9 +49,10 @@ class CnkiSpider:
                 f.write('start_time: ' + str(self.start_time) + '  ' + 'end_time: ' + str(self.end_time) + '\n')
             time.sleep(CnkiSpider.__WAIT_TIME)
             self.__reconnection()
-    # ·µ»ØÖµ£º[ÔËĞĞ½á¹û£¬»ñÈ¡ÍøÒ³]¡£
-    # ÔËĞĞ½á¹û==TrueÊ±£¬»ñÈ¡ÍøÒ³=ÍøÒ³´úÂë×Ö·û´®
-    # ÔËĞĞ½á¹û==FalseÊ±£¬»ñÈ¡ÍøÒ³=''
+
+    # è¿”å›å€¼ï¼š[è¿è¡Œç»“æœï¼Œè·å–ç½‘é¡µ]ã€‚çˆ¬å–åˆ°çš„ç¬¬page_numé¡µç½‘é¡µæºç 
+    # è¿è¡Œç»“æœ==Trueæ—¶ï¼Œè·å–ç½‘é¡µ=ç½‘é¡µä»£ç å­—ç¬¦ä¸²
+    # è¿è¡Œç»“æœ==Falseæ—¶ï¼Œè·å–ç½‘é¡µ=''
     def __goto_page_helper(self, page_num=1):
         query_string = urllib.urlencode(
             {'curpage': page_num, 'RecordsPerPage': '50', 'QueryID': '16', 'ID': '', 'turnpage': '1',
@@ -68,10 +68,8 @@ class CnkiSpider:
             time.sleep(CnkiSpider.__WAIT_TIME)
             return [False, '']
         else:
-            # with open('test.htm','w') as h:
-            #     h.write(html)
-            # print html
             return [True, html]
+
 
     def goto_page(self, page_num=1, reconnect=True):
         if reconnect:
@@ -90,5 +88,5 @@ class CnkiSpider:
 
 
 if __name__ == '__main__':
-    cnki = CnkiSpider('C041', '2012-01-01', '2012-12-31')
+    cnki = CnkiSpider('*', '2012-01-01', '2012-12-31')
     print cnki.goto_page(3)

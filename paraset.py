@@ -1,16 +1,11 @@
-# -*- coding: cp936 -*-
+# -*- coding: utf-8 -*-
 """
-ÉèÖÃ¶ÔcnkiµÄ²éÑ¯²ÎÊı
+è®¾ç½®å¯¹cnkiçš„æŸ¥è¯¢å‚æ•°
 """
 import time
 
-# Ê¡±ğ´úÂë£º¿ÉÉèÖÃ
+# çœåˆ«ä»£ç ï¼šå¯è®¾ç½®
 search = {'GDM': ''}
-
-
-def __to_utf(string):
-    return string.decode('gbk').encode('utf-8')
-
 
 def __build_query(value):
     par = {'txt_1_relation': '#CNKI_AND', 'txt_1_special1': '='}
@@ -18,12 +13,12 @@ def __build_query(value):
     for v in value:
         i = i + 1
         par['txt_%d_sel' % i] = v
-        par['txt_%d_value1' % i] = __to_utf(value[v])
+        par['txt_%d_value1' % i] = value[v]
         par['txt_%d_relation' % i] = '#CNKI_AND'
         par['txt_%d_special1' % i] = '='
     return par
 
-
+# connectingæ‰€éœ€è¦çš„å‚æ•°
 def make_parameters(patent_code, start_time, end_time):
     parameter = {
         'action': '',
@@ -31,15 +26,14 @@ def make_parameters(patent_code, start_time, end_time):
         'ua': '1.21',
         'PageName': 'ASP.brief_result_aspx',
         'DbPrefix': 'SCPD',
-        'DbCatalog': __to_utf('ÖĞ¹ú×¨ÀûÊı¾İ¿â'),
+        'DbCatalog': 'ä¸­å›½ä¸“åˆ©æ•°æ®åº“',
         'ConfigFile': 'SCPD.xml',
         'db_opt': 'SCPD',
-        'db_value': __to_utf('ÖĞ¹ú×¨ÀûÊı¾İ¿â'),
+        'db_value': 'ä¸­å›½ä¸“åˆ©æ•°æ®åº“',
         'publishdate_from': start_time,
         'publishdate_to': end_time,
         'his': '0',
-        '__': time.strftime('%a %b %d %Y %H:%M:%S') + ' GMT+0800 (ÖĞ¹ú±ê×¼Ê±¼ä)',
-        # 'recordsperpage':'50',
+        '__': time.strftime('%a %b %d %Y %H:%M:%S') + ' GMT+0800 (ä¸­å›½æ ‡å‡†æ—¶é—´)',
     }
     parameters = dict(parameter, **__build_query(search))
     return parameters

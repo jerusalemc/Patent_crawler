@@ -5,6 +5,7 @@ import sys
 reload(sys)  
 sys.setdefaultencoding('utf-8')
 
+# 解析json，统计专利结果，存成excel文件
 def save(year):
     with open(year + '.json', 'r') as f:
         _all = json.load(f)

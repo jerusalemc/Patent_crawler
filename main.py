@@ -12,7 +12,7 @@ from spider import CnkiSpider
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
+# 将爬取到的网页进行解析，参照HTMLParser：https://docs.python.org/2/library/htmlparser.html
 class PatentParser(HTMLParser):
     def __init__(self, append_info=''):
         HTMLParser.__init__(self)
@@ -89,21 +89,16 @@ class PatentParser(HTMLParser):
 
     # 公开函数：返回查询结果
     def get_result(self):
-        self.__result = []
+        self.__result = [] # self.__result: [[公开号，专利名， 发明人， 申请人（企业名），申请日， 公开日]， [....]] 每六个为一个专利
         if len(self.__sequence) % 6 != 0:
             # 保留：用于检验特殊符号造成解析html失败
             # print "Parser error!"
-            print(len(self.__sequence))
             _mod = len(self.__sequence) % 6
             for i in range(int(len(self.__sequence)) / 6):
                 if 'CN' in self.__sequence[6 * i].encode('utf8') and 'CN' in  self.__sequence[6 * i + _mod]:
                     self.__sequence = self.__sequence[:6 * i] + self.__sequence[6 * i + _mod:]
             for i in range(int(len(self.__sequence)) / 6):
                 print self.__sequence[6 * i].encode('utf8')
-            # print(self.__sequence)
-            #for each in self.__sequence[-6:]:
-               #  print each
-            # exit(-1)
         if self.append_info == '':
             for i in range(1, int(len(self.__sequence) / 6) + 1):
                 self.__result.append(
@@ -133,26 +128,32 @@ class PatentParser(HTMLParser):
 if __name__ == '__main__':
     myparser = PatentParser('experiment')
 
+    # 从爬取到的result里面解析出需要的专利公开号和企业名，存成json格式：{专利公众号: 企业名, ...}
     for year in ['2012', '2013']:
         result = dict()
-        start = datetime.datetime(int(year), 1, 1)
-        end = datetime.datetime(int(year), 12, 31)
-        _time = datetime.datetime(int(year), 1, 1)
+        start = datetime.datetime(int(year), 1, 1)  # 爬取开始时间
+        end = datetime.datetime(int(year), 12, 31)  # 爬取结束时间
+        _time = datetime.datetime(int(year), 1, 1)  # 当前爬取时间
 
-        w_flag = 0
+        interval = 1 # 每次爬取的时间间隔：_time 到 _time + interval - 1, interval为1表示每天爬一次， 具体interval根据实际情况确定，保证这段时间内的专利数不大于6000
+        w_flag = 0 # 写入文件标志，每十次写入文件，防丢失
         while _time <= end:
             print(_time)
-            _timeb = _time + datetime.timedelta(days=0)
+            _timeb = _time + datetime.timedelta(days=(interval - 1))
             if _timeb > end:
                 _timeb = end
     
-            i = 0 
-            count = 1
+            i = 0 # 爬取的页数，爬取的结果类似知网是分多页返回
+            count = 1 # 当前页专利数，当专利数为0表示该时间段已经爬完，可进行下一时间短
             tmp = list()
             while count != 0:
+                # 爬取_time 到 _timeb 的专利，返回结果保存在tmp中
                 myparser.feed(CnkiSpider('*', str(_time.year) + '-' + str(_time.month) + '-' + str(_time.day), str(_timeb.year) + '-' + str(_timeb.month) + '-' + str(_timeb.day)).goto_page(i))
-                tmp = myparser.get_result()
+                tmp = myparser.get_result() 
                 count = len(tmp)
+
+                # 解析爬取的结果tmp: [[专利公开号，专利名， 发明人， 申请人（企业名），申请日， 公开日]， [....]]
+                # 得到的result：{专利公开号：企业名, ...}
                 for x in tmp:
                     if 'CN' not in x[0].encode('utf8'):
                         print('yes')
@@ -167,7 +168,7 @@ if __name__ == '__main__':
                 with open(year + '.json', 'w') as f:
                     json.dump(result, f)
 
-            _time += datetime.timedelta(days=1)
+            _time += datetime.timedelta(days=interval)
         
         with open(year + '.json', 'w') as f:
             json.dump(result, f)
