@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-¶ÔCNKI×¨Àû²éÑ¯½á¹ûÒ³Ãæ½øĞĞ½âÎö£¬µÃµ½²éÑ¯ÌõÄ¿ÁĞ±í
+å¯¹CNKIä¸“åˆ©æŸ¥è¯¢ç»“æœé¡µé¢è¿›è¡Œè§£æï¼Œå¾—åˆ°æŸ¥è¯¢æ¡ç›®åˆ—è¡¨
 """
 import sys
 import json
@@ -17,11 +17,11 @@ class PatentParser(HTMLParser):
     def __init__(self, append_info=''):
         HTMLParser.__init__(self)
         self.__insubtags = ['sub', 'sup']
-        # ¹Ø¼ü±êÖ¾flagÈ¡Öµ£º0ÎŞ¹Ø±êÇ©£¬1×¨ÀûºÅÓĞ¹Ø±êÇ©ºÍ×¨ÀûÃû±êÇ©£¬2·¢Ã÷ÈË±êÇ©£¬3ÉêÇëÈË±êÇ©£¬4ÉêÇëÈÕÆÚ±íÇ×°¡£¬5¹«¿ªÈÕÆÚ±êÇ©
+        # å…³é”®æ ‡å¿—flagå–å€¼ï¼š0æ— å…³æ ‡ç­¾ï¼Œ1ä¸“åˆ©å·æœ‰å…³æ ‡ç­¾å’Œä¸“åˆ©åæ ‡ç­¾ï¼Œ2å‘æ˜äººæ ‡ç­¾ï¼Œ3ç”³è¯·äººæ ‡ç­¾ï¼Œ4ç”³è¯·æ—¥æœŸè¡¨äº²å•Šï¼Œ5å…¬å¼€æ—¥æœŸæ ‡ç­¾
         self.__flag = 0
         self.__insubflag = False
         self.__subject = ''
-        # Êä³öË³Ğò£ºÏÂÔØÁ´½Ó£¬×¨Àû±êÌâ£¬·¢Ã÷ÈË£¬ÉêÇëÈË£¬ÉêÇëÈÕÆÚ£¬¹«¿ªÈÕÆÚ
+        # è¾“å‡ºé¡ºåºï¼šä¸‹è½½é“¾æ¥ï¼Œä¸“åˆ©æ ‡é¢˜ï¼Œå‘æ˜äººï¼Œç”³è¯·äººï¼Œç”³è¯·æ—¥æœŸï¼Œå…¬å¼€æ—¥æœŸ
         self.__sequence = []
         self.__result = []
         self.page_count = ''
@@ -32,7 +32,7 @@ class PatentParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         tag = tag.strip()
-        # ±ê¼Ç×¨Àû±êÌâ¡¢½âÎö×¨ÀûºÅ
+        # æ ‡è®°ä¸“åˆ©æ ‡é¢˜ã€è§£æä¸“åˆ©å·
         if tag == 'a':
             for name, value in attrs:
                 if name == 'class' and value == 'fz14':
@@ -40,22 +40,22 @@ class PatentParser(HTMLParser):
                 elif name == 'href' and self.__flag == 1:
                     s = value.strip()
                     self.__sequence.append(s[s.find('filename=') + 9:])
-        # ¹Ø¼ü±êÖ¾flagÈ¡Öµ£º0ÎŞ¹Ø±êÇ©£¬1×¨ÀûºÅÓĞ¹Ø±êÇ©ºÍ×¨ÀûÃû±êÇ©£¬2·¢Ã÷ÈË±êÇ©£¬3ÉêÇëÈË±êÇ©£¬4ÉêÇëÈÕÆÚ±íÇ×°¡£¬5¹«¿ªÈÕÆÚ±êÇ©
+        # å…³é”®æ ‡å¿—flagå–å€¼ï¼š0æ— å…³æ ‡ç­¾ï¼Œ1ä¸“åˆ©å·æœ‰å…³æ ‡ç­¾å’Œä¸“åˆ©åæ ‡ç­¾ï¼Œ2å‘æ˜äººæ ‡ç­¾ï¼Œ3ç”³è¯·äººæ ‡ç­¾ï¼Œ4ç”³è¯·æ—¥æœŸè¡¨äº²å•Šï¼Œ5å…¬å¼€æ—¥æœŸæ ‡ç­¾
         elif tag == 'td':
             if self.__flag in range(1, 5):
                 self.__flag += 1
-        # ±ê¼Ç²éÑ¯×ÜÒ³Âë
+        # æ ‡è®°æŸ¥è¯¢æ€»é¡µç 
         elif tag == 'span':
             for name, value in attrs:
                 if name == 'class' and value == 'countPageMark':
                     self.__pagecountflg = True
-        # ±ê¼ÇÓ¦´ğÌõÄ¿×ÛÊö
-        # NOTE: cnki×î¶àÖ§³Ö·µ»Ø6000Ìõ¼ÇÂ¼¡£Òò´Ë£¬³¬¹ı6000ÌõµÄ»°£¬Ó¦µ÷Õû²éÑ¯Ìõ¼ş£¬ÈçËõ¶ÌÈÕÆÚ¿ç¶È¡¢¾ßÌå»¯×¨Àû·ÖÀà
+        # æ ‡è®°åº”ç­”æ¡ç›®ç»¼è¿°
+        # NOTE: cnkiæœ€å¤šæ”¯æŒè¿”å›6000æ¡è®°å½•ã€‚å› æ­¤ï¼Œè¶…è¿‡6000æ¡çš„è¯ï¼Œåº”è°ƒæ•´æŸ¥è¯¢æ¡ä»¶ï¼Œå¦‚ç¼©çŸ­æ—¥æœŸè·¨åº¦ã€å…·ä½“åŒ–ä¸“åˆ©åˆ†ç±»
         elif tag == 'div':
             for name, value in attrs:
                 if name == 'class' and value == 'pagerTitleCell':
                     self.__itemflg = True
-        # ´¦Àí×¨Àû±êÌâÖĞÒòÉÏ±ê¡¢ÏÂ±êµ¼ÖÂ¶à´Î·µ»Ødata£¨Èç»¯ºÏÎïÃû³Æ¡¢ÊıÑ§·ûºÅµÈ£©
+        # å¤„ç†ä¸“åˆ©æ ‡é¢˜ä¸­å› ä¸Šæ ‡ã€ä¸‹æ ‡å¯¼è‡´å¤šæ¬¡è¿”å›dataï¼ˆå¦‚åŒ–åˆç‰©åç§°ã€æ•°å­¦ç¬¦å·ç­‰ï¼‰
         elif tag in self.__insubtags:
             if self.__flag == 1:
                 self.__insubflag = True
@@ -64,7 +64,7 @@ class PatentParser(HTMLParser):
 
     def handle_endtag(self, tag):
         tag = tag.strip()
-        # Éú³É×¨Àû±êÌâ
+        # ç”Ÿæˆä¸“åˆ©æ ‡é¢˜
         if tag == 'a' and self.__flag == 1:
             self.__sequence.append(self.__subject)
             self.__insubflag = False
@@ -83,15 +83,15 @@ class PatentParser(HTMLParser):
             self.item_count = data[3:len(data) - 4]
         if self.__flag == 1:
             self.__subject += data
-        # Éú³ÉËÄ¸ö×Ö¶Î£º·¢Ã÷ÈË¡¢ÉêÇëÈË¡¢ÉêÇëÈÕÆÚ¡¢¹«¿ªÈÕÆÚ
+        # ç”Ÿæˆå››ä¸ªå­—æ®µï¼šå‘æ˜äººã€ç”³è¯·äººã€ç”³è¯·æ—¥æœŸã€å…¬å¼€æ—¥æœŸ
         if self.__flag in range(2, 6) and data:
             self.__sequence.append(data)
 
-    # ¹«¿ªº¯Êı£º·µ»Ø²éÑ¯½á¹û
+    # å…¬å¼€å‡½æ•°ï¼šè¿”å›æŸ¥è¯¢ç»“æœ
     def get_result(self):
         self.__result = []
         if len(self.__sequence) % 6 != 0:
-            # ±£Áô£ºÓÃÓÚ¼ìÑéÌØÊâ·ûºÅÔì³É½âÎöhtmlÊ§°Ü
+            # ä¿ç•™ï¼šç”¨äºæ£€éªŒç‰¹æ®Šç¬¦å·é€ æˆè§£æhtmlå¤±è´¥
             # print "Parser error!"
             print(len(self.__sequence))
             _mod = len(self.__sequence) % 6
@@ -125,7 +125,7 @@ class PatentParser(HTMLParser):
         return self.__result
 
     def feed(self, data):
-        # ¹Ø¼ü£ºÉ¾³ıhtmlÎÄµµÖĞÒÔ"&"¿ªÍ·µÄ¸÷ÖÖ×ªÒå×Ö·û
+        # å…³é”®ï¼šåˆ é™¤htmlæ–‡æ¡£ä¸­ä»¥"&"å¼€å¤´çš„å„ç§è½¬ä¹‰å­—ç¬¦
         self.rawdata = self.rawdata + self.unescape(data).replace('&', '')
         self.goahead(0)
 
